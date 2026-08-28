@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>谢天昕 · AI 产品经理工作台 | Tianxin Workbench</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Lora:ital,wght@0,500;0,600;1,400&family=Noto+Serif+SC:wght@500;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-desk: #EFE8DA;
+    --paper-white: #FFFFFF;
+    --paper-cream: #FCFAF6;
+    --ink-primary: #221911;
+    --ink-secondary: #4A3C30;
+    --ink-muted: #7D6F62;
+    --acc-orange: #E05D26;
+    --acc-warm: #D97706;
+    --acc-blue: #2B6CB0;
+    --acc-green: #2E7D32;
+    --acc-red: #A8382E;
+    
+    /* 统一规范的 Linear / Apple 级阴影系统 */
+    --shadow-soft: 0 8px 24px rgba(60, 40, 10, 0.08);
+    --shadow-real: 0 12px 32px rgba(60, 40, 10, 0.12);
+    --shadow-deep: 0 20px 50px rgba(60, 40, 10, 0.16);
+    --shadow-hover: 0 14px 36px rgba(60, 40, 10, 0.15);
+
+    /* 统一圆角系统 */
+    --radius-sm: 8px;
+    --radius-md: 14px;
+    --radius-lg: 22px;
+
+    --card-border: 1px solid rgba(120, 90, 40, 0.12);
+    --glass-bg: rgba(255, 252, 247, 0.85);
+
+    --font-serif: 'Noto Serif SC', 'Lora', Georgia, serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0;padding:0;height:100%;width:100%;overflow:hidden;
+    background: #EDE6D6;
+    font-family:var(--font-serif);
+    color:var(--ink-primary);
+    line-height: 1.7;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    text-rendering:optimizeLegibility;
+  }
+  body{cursor:default;user-select:none;}
+
+  .mono,.label,.tip-cap,.term-body,.term-title,.term-hint,
+  .folder-label,.folder-sub,.journal-sub,.modal-sub,.idx-no,.idx-tag,
+  .pola-cap,.tag-pill,.badge,.metric-val,.flow-step-tag,.case-tag{
+    font-family:var(--font-mono);
+  }
+
+  /* 真实自然光暖阳背景 */
+  .desk-surface{
+    position:fixed;inset:0;z-index:0;
+    background:
+      radial-gradient(ellipse 80% 60% at 20% 15%, rgba(255,250,235,0.85), transparent 75%),
+      radial-gradient(ellipse 60% 50% at 85% 80%, rgba(225,200,165,0.4), transparent 70%),
+      linear-gradient(165deg, #F6F0EC 0%, #ECE3D2 45%, #E0D4BD 100%);
+  }
+  .desk-sunlight{
+    position:fixed;inset:0;pointer-events:none;z-index:1;
+    background:radial-gradient(circle 650px at 15% 10%, rgba(255,248,220,0.4), transparent 80%);
+    mix-blend-mode:soft-light;
+  }
+
+  /* 窗格阳光投射效果 — 格条层 */
+  .window-light{
+    --px:0px; --py:0px;
+    position:fixed;inset:-12%;pointer-events:none;z-index:2;
+    background:
+      linear-gradient(22deg,
+        transparent 120px,rgba(45,25,8,0.20) 120px,rgba(45,25,8,0.20) 164px,
+        transparent 164px,transparent 520px,rgba(45,25,8,0.20) 520px,rgba(45,25,8,0.20) 564px,
+        transparent 564px,transparent 860px,rgba(45,25,8,0.20) 860px,rgba(45,25,8,0.20) 904px,
+        transparent 904px,transparent 1140px,rgba(45,25,8,0.20) 1140px,rgba(45,25,8,0.20) 1184px,
+        transparent 1184px,transparent 1380px,rgba(45,25,8,0.20) 1380px,rgba(45,25,8,0.20) 1424px,
+        transparent 1424px),
+      linear-gradient(108deg,
+        transparent 100px,rgba(45,25,8,0.20) 100px,rgba(45,25,8,0.20) 144px,
+        transparent 144px,transparent 380px,rgba(45,25,8,0.20) 380px,rgba(45,25,8,0.20) 424px,
+        transparent 424px,transparent 700px,rgba(45,25,8,0.20) 700px,rgba(45,25,8,0.20) 744px,
+        transparent 744px,transparent 1060px,rgba(45,25,8,0.20) 1060px,rgba(45,25,8,0.20) 1104px,
+        transparent 1104px,transparent 1470px,rgba(45,25,8,0.20) 1470px,rgba(45,25,8,0.20) 1514px,
+        transparent 1514px,transparent 1930px,rgba(45,25,8,0.20) 1930px,rgba(45,25,8,0.20) 1974px,
+        transparent 1974px),
+      radial-gradient(ellipse 55% 48% at 12% 6%, rgba(255,238,195,0.50), transparent 50%);
+    mix-blend-mode:overlay;
+    filter:blur(5px);
+    transform:translate(var(--px),var(--py));
+    will-change:transform;
+  }
+  /* 窗格阳光 — 远端渐隐层（桌面色覆盖远区，模拟越远越模糊） */
+  .window-light-fade{
+    --px:0px; --py:0px;
+    position:fixed;inset:-15%;pointer-events:none;z-index:3;
+    background:radial-gradient(ellipse 90% 85% at 14% 8%, transparent 28%, rgba(239,232,218,0.1) 55%, rgba(239,232,218,0.25) 75%, rgba(239,232,218,0.45) 100%);
+    transform:translate(var(--px),var(--py));
+    will-change:transform;
+  }
+
+  /* 舞台容器 (1440x810 标准视口) */
+  .stage{
+    position:fixed;left:50%;top:50%;width:1440px;height:810px;
+    margin-left:-720px;margin-top:-405px;transform-origin:center center;z-index:10;
+  }
+  .obj{
+    position:absolute;z-index:10;background:transparent;
+    transition:transform .22s cubic-bezier(.2,0,0,1);
+  }
+  .clickable{cursor:pointer;}
+
+  /* 悬停微上浮动效 */
+  .lift-phone:hover{
+    transform:translateY(-3px) rotate(-8deg) !important;
+    z-index:100 !important;
+  }
+  .lift-phone:hover .iphone-lg{
+    box-shadow:var(--shadow-hover) !important;
+  }
+
+  .lift-coffee:hover{
+    transform:translateY(-3px) !important;
+    z-index:100 !important;
+  }
+  .lift-coffee:hover .saucer{
+    box-shadow:var(--shadow-hover) !important;
+  }
+
+  .lift-glasses:hover{
+    transform:translateY(-3px) !important;
+    z-index:100 !important;
+  }
+  .lift-glasses:hover .glasses-gold{
+    filter:drop-shadow(0 10px 14px rgba(60,40,10,0.22)) !important;
+  }
+
+  .lift-pencil:hover{
+    transform:translateY(-3px) !important;
+    z-index:100 !important;
+  }
+
+  .lift-about:hover{
+    transform:translateY(-3px) rotate(-7deg) !important;
+    z-index:100 !important;
+  }
+  .lift-about:hover .vibe-card-lg{
+    box-shadow:0 12px 26px rgba(220,90,50,0.24), inset 0 1px 2px rgba(255,255,255,0.7) !important;
+  }
+
+  .lift-journal:hover{
+    transform:translateY(-3px) rotate(3deg) !important;
+    z-index:100 !important;
+  }
+  .lift-journal:hover .journal-pure{
+    box-shadow:var(--shadow-hover) !important;
+  }
+
+  .lift-folder:hover{
+    transform:translateY(-3px) rotate(-2deg) !important;
+    z-index:100 !important;
+  }
+  .lift-folder:hover .folder-real{
+    box-shadow:var(--shadow-hover) !important;
+  }
+
+  /* 悬浮提示框：水平平正 */
+  .tip{
+    position:absolute;bottom:calc(100% + 14px);left:50%;
+    transform:translateX(-50%) translateY(6px);
+    background:#FFFFFF;color:var(--ink-primary);
+    padding:11px 16px;border-radius:var(--radius-sm);font-size:12.5px;line-height:1.55;
+    width:max-content !important;min-width:270px !important;max-width:380px !important;
+    text-align:center;white-space:normal;word-break:keep-all;
+    opacity:0;pointer-events:none;
+    transition:opacity .2s ease, transform .2s ease;
+    box-shadow:var(--shadow-real);
+    border:var(--card-border);
+    z-index:999;
+  }
+  .tip::after{
+    content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);
+    border:7px solid transparent;border-top-color:#FFFFFF;
+  }
+  .obj:hover .tip{opacity:1;transform:translateX(-50%) translateY(0);}
+  
+  .tip.tip-down{bottom:auto;top:calc(100% + 14px);transform:translateX(-50%) translateY(-6px);}
+  .obj:hover .tip.tip-down{opacity:1;transform:translateX(-50%) translateY(0);}
+  .tip.tip-down::after{top:auto;bottom:100%;border-top-color:transparent;border-bottom-color:#FFFFFF;}
+  .tip-cap{display:block;color:var(--acc-orange);font-weight:700;letter-spacing:1px;font-size:11.5px;margin-bottom:3px;}
+
+  /* 胶带 */
+  .washi-tape{
+    position:absolute;height:24px;border-radius:2px;
+    background:rgba(215,226,212,0.85);
+    box-shadow:0 1px 3px rgba(60,40,10,0.1);
+    backdrop-filter:blur(1px);
+    z-index:15;
+  }
+
+  /* ==================== 1. 便签（整体下移与上下垂直居中） ==================== */
+  .sticky-note-centered{
+    background:#FFFDF8;
+    border-radius:var(--radius-sm);
+    box-shadow:var(--shadow-soft);
+    border:var(--card-border);
+    padding:28px 18px 22px;
+    font-size:12.5px;color:var(--ink-secondary);line-height:1.45;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;
+  }
+  .note-h-c{font-weight:700;font-size:13.5px;color:var(--ink-primary);display:flex;align-items:center;justify-content:center;gap:6px;margin:0 0 10px;}
+  .note-row-c{display:flex;align-items:center;justify-content:center;gap:8px;margin:5px 0;color:var(--ink-secondary);font-size:12.5px;width:100%;}
+  .note-row-c .ic{width:15px;height:15px;flex:0 0 auto;color:var(--ink-muted);}
+  .note-mail-c{cursor:pointer;text-decoration:none;color:var(--ink-secondary);}
+  .note-mail-c:hover{text-decoration:underline;color:var(--acc-orange);}
+  
+  .dl-btn-c{display:block;margin-top:10px;text-align:center;background:#3D3126;color:#FFFDF8;
+    padding:8px 14px;border-radius:var(--radius-sm);font-size:12px;font-weight:600;width:92%;border:none;
+    box-shadow:0 2px 5px rgba(60,40,10,0.12);text-decoration:none;
+    transition:transform .18s ease, background .18s ease, box-shadow .18s ease;}
+  .dl-btn-c:hover{background:#261E16;transform:translateY(-2px);box-shadow:0 4px 10px rgba(60,40,10,0.2);}
+  
+  .status-c{margin-top:9px;font-size:11.5px;color:#2E7D32;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px;}
+  .status-c .dot{width:7px;height:7px;border-radius:50%;background:#34C759;box-shadow:0 0 6px #34C759;animation:pulse 2s infinite;}
+
+  /* ==================== 2. 拍立得 ==================== */
+  .polaroid{
+    width:142px;height:172px;background:#FFFFFF;
+    border-radius:var(--radius-sm);box-shadow:var(--shadow-real);
+    padding:8px 8px 0;border:var(--card-border);
+  }
+  .pola-img{width:126px;height:124px;background-size:cover;background-position:center;border-radius:4px;}
+  .pola-cap{font-size:12px;text-align:center;color:var(--ink-muted);margin-top:7px;font-weight:600;}
+
+  /* ==================== 3. 手机 ==================== */
+  .iphone-lg{
+    width:158px;height:322px;border-radius:30px;padding:6px;
+    background:linear-gradient(150deg,#E4E4E8,#C0C0C6);
+    box-shadow:var(--shadow-deep);border:1px solid rgba(80,60,30,0.12);
+    transition:box-shadow .22s ease;
+  }
+  .iphone-screen-lg{
+    position:relative;width:100%;height:100%;border-radius:24px;overflow:hidden;
+    background:#1C2028;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  }
+  .iphone-notch-lg{position:absolute;top:6px;left:50%;transform:translateX(-50%);width:56px;height:14px;border-radius:7px;background:#000;z-index:3;}
+  .ios-app-pure-lg{
+    width:56px;height:56px;border-radius:var(--radius-md);
+    background:linear-gradient(145deg,#FFCA28,#F57C00);
+    box-shadow:0 6px 16px rgba(0,0,0,0.4);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4.5px;
+  }
+  .ios-note-line-lg{width:24px;height:3px;background:#fff;border-radius:2px;opacity:0.9;}
+
+  /* ==================== 4. 咖啡杯 ==================== */
+  .coffee{width:124px;height:124px;position:relative;}
+  .coffee-rotate-body{width:100%;height:100%;position:relative;transform:rotate(6deg);}
+  .coffee .saucer{position:absolute;inset:0;border-radius:50%;background:#E8DCBA;box-shadow:var(--shadow-real);transition:box-shadow .22s ease;}
+  .coffee .cup{position:absolute;inset:12px;border-radius:50%;background:#FDFBF7;border:2px solid #E2D5BE;}
+  .coffee .liq{position:absolute;inset:20px;border-radius:50%;background:#4E2F18;box-shadow:inset 0 4px 8px rgba(0,0,0,0.4);}
+  .coffee .crema{position:absolute;inset:28px;border-radius:50%;border:2px solid rgba(220,180,140,0.3);}
+
+  /* ==================== 5. 细金框眼镜 ==================== */
+  .glasses-gold{
+    width:144px;height:62px;
+    transform:rotate(6deg);
+    filter:drop-shadow(0 6px 10px rgba(60,40,10,0.18));
+    transition:filter .22s ease;
+  }
+
+  /* ==================== 6. 终端 (Tianxin OS) ==================== */
+  .device{
+    width:550px;height:355px;border-radius:var(--radius-md);padding:9px;
+    background:linear-gradient(150deg,#E8E8EC,#D2D2D8);
+    box-shadow:var(--shadow-deep);border:var(--card-border);
+  }
+  .device-screen{
+    position:relative;width:100%;height:100%;border-radius:6px;overflow:hidden;
+    background:#FAFAFC;border:1px solid #E0E0E6;
+  }
+  .term-bar{height:28px;background:#EEEEF2;display:flex;align-items:center;gap:7px;padding:0 12px;border-bottom:1px solid #E0E0E6;position:relative;}
+  .term-bar .d{width:10px;height:10px;border-radius:50%;}
+  .d.red{background:#FF5F56;}.d.yel{background:#FFBD2E;}.d.grn{background:#27C93F;}
+  .term-title{position:absolute;left:0;right:0;text-align:center;font-size:11.5px;color:#787880;letter-spacing:.3px;}
+  .replay{position:absolute;right:8px;top:4px;width:20px;height:18px;border-radius:4px;border:1px solid #D0D0D5;background:#FAFAFA;color:#777;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;}
+  .replay:hover{background:#E8E8EC;color:#111;}
+  .term-body{padding:16px 18px;font-size:13.5px;line-height:1.7;color:#2A2A2E;height:calc(100% - 28px);overflow:hidden;}
+  .term-body .cmd{color:#D97706;font-weight:600;}
+  .term-body .out{color:#4B5563;padding-left:12px;}
+  .cursor{display:inline-block;width:7px;height:15px;background:#059669;margin-left:1px;vertical-align:-2px;animation:blink 1s step-end infinite;}
+  .term-hint{position:absolute;bottom:7px;right:12px;font-size:10px;color:#9CA3AF;}
+
+  /* ==================== 7. 铅笔 ==================== */
+  .pencil-box{
+    position:absolute;
+    width:90px;height:230px;
+    z-index:60 !important;
+  }
+  .pencil-svg-rot{
+    width:220px;height:22px;
+    transform:rotate(68deg);
+    transform-origin:20px 11px;
+    filter:drop-shadow(6px 10px 14px rgba(40,25,10,0.26));
+  }
+
+  /* ==================== 8. 日记本 ==================== */
+  .journal-pure{
+    width:216px;height:285px;border-radius:4px var(--radius-md) var(--radius-md) 4px;
+    background:linear-gradient(145deg,#AA4238,#8E322A);
+    box-shadow:var(--shadow-deep);border:1px solid #7D261E;
+    position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:20px;transition:box-shadow .22s ease;
+  }
+  .journal-spine-pure{position:absolute;left:0;top:0;bottom:0;width:12px;background:rgba(0,0,0,0.15);border-radius:4px 0 0 4px;}
+  .journal-title-pure{font-size:21px;font-weight:700;letter-spacing:2px;color:#FCE6BA;text-align:center;line-height:1.3;}
+  .journal-sub-pure{font-size:8.5px;letter-spacing:2.5px;color:#E6C280;opacity:0.8;margin-top:10px;text-align:center;width:100%;white-space:nowrap;}
+
+  /* ==================== 9. 档案袋 ==================== */
+  .folder-real{
+    width:350px;height:236px;border-radius:var(--radius-sm);
+    background:linear-gradient(160deg, #E6D4B8 0%, #D8C2A0 100%);
+    box-shadow:var(--shadow-deep);
+    border:1px solid #BAA17D;
+    position:relative;overflow:hidden;
+    transition:box-shadow .22s ease;
+  }
+  .folder-flap-real{
+    position:absolute;top:0;left:0;right:0;height:54px;
+    background:linear-gradient(180deg, #DEC8A8 0%, #CEB18C 100%);
+    border-bottom:1.5px solid #B89C76;
+    box-shadow:0 4px 10px rgba(60,40,10,0.08);
+    clip-path:polygon(0 0, 100% 0, 92% 100%, 8% 100%);
+    z-index:2;
+  }
+  .folder-label-card{
+    position:absolute;top:76px;left:24px;right:24px;
+    background:#FCF8EE;
+    border:1px dashed #C8B290;
+    border-radius:6px;
+    padding:16px 12px;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    box-shadow:0 2px 6px rgba(60,40,10,0.04);
+  }
+  .folder-label-real{font-size:14.5px;letter-spacing:2.5px;color:#4A3012;font-weight:800;text-align:center;}
+  .folder-sub-real{font-size:9.5px;letter-spacing:3.5px;color:#856434;opacity:0.8;margin-top:4px;text-align:center;}
+
+  /* ==================== 10. 关于我卡片 ==================== */
+  .vibe-card-lg{
+    width:175px;height:102px;border-radius:var(--radius-md);position:relative;
+    background:linear-gradient(135deg,#F7AE6D 0%,#ED7B63 50%,#E25B4D 100%);
+    box-shadow:0 8px 18px rgba(220,90,50,0.20), inset 0 1px 2px rgba(255,255,255,0.7);
+    border:1px solid rgba(255,255,255,0.5);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    transition:box-shadow .22s ease;
+  }
+  .vibe-text-lg{
+    color:#FFFFFF;font-size:17.5px;font-weight:800;text-align:center;letter-spacing:1.5px;
+    text-shadow:0 1px 2px rgba(120,40,20,0.25);
+  }
+  .vibe-text-lg small{
+    display:block;font-size:9.5px;letter-spacing:3px;opacity:.9;margin-top:4px;font-weight:600;
+  }
+
+  /* ============================================================
+     MODAL SYSTEM (Linear / Apple 玻璃磨砂与叉号/翻页 Hover 显隐)
+  ============================================================ */
+  .modal{position:fixed;inset:0;z-index:900;display:none;}
+  .modal.open{display:block;animation:fade .2s ease;}
+  .modal-bg{position:absolute;inset:0;background:rgba(235,225,210,0.65);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);}
+  
+  .modal-card{
+    position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    background:var(--glass-bg);
+    backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+    box-shadow:var(--shadow-deep);
+    border:var(--card-border);
+    border-radius:var(--radius-lg);overflow:hidden;
+  }
+  
+  /* 叉号关闭按钮：悬停在弹窗内才平滑显现 */
+  .x-btn{
+    position:absolute;top:20px;right:20px;width:34px;height:34px;border-radius:50%;
+    background:#EFEAE1;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;
+    color:#6E5E4E;z-index:60;
+    opacity:0;pointer-events:none;
+    transition:opacity 0.25s ease, background 0.2s ease, transform 0.2s ease;
+  }
+  .modal-card:hover .x-btn{
+    opacity:1;pointer-events:auto;
+  }
+  .x-btn:hover{background:#DFD8CC;color:#1A1108;transform:rotate(90deg);}
+
+  /* 翻页按钮：悬停在弹窗内才平滑显现 */
+  .nav{
+    position:absolute;top:50%;transform:translateY(-50%);
+    width:42px;height:42px;border-radius:50%;
+    background:rgba(60,40,20,0.85);border:none;cursor:pointer;color:#fff;
+    display:flex;align-items:center;justify-content:center;font-size:22px;
+    opacity:0;pointer-events:none;
+    transition:opacity 0.25s ease, background 0.2s ease;
+    z-index:50;
+  }
+  .modal-card:hover .nav{
+    opacity:1;pointer-events:auto;
+  }
+  .nav:hover{background:#26180E;}
+  .nav.prev{left:12px;}.nav.next{right:12px;}
+
+  .scroll-body{max-height:68vh;overflow-y:auto;padding-right:8px;}
+  .scroll-body::-webkit-scrollbar{width:6px;}
+  .scroll-body::-webkit-scrollbar-thumb{background:rgba(120,90,40,.25);border-radius:3px;}
+
+  /* Case Study 结构化容器 */
+  .case-container{
+    background:#FFFFFF;border:var(--card-border);border-radius:var(--radius-md);
+    padding:24px 28px;box-shadow:var(--shadow-soft);
+  }
+  .case-section-title{
+    font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--acc-orange);
+    display:flex;align-items:center;gap:6px;margin-bottom:6px;
+  }
+
+  /* 单行 Flex 水平自适应流程轴 */
+  .case-flow-flex{
+    display:flex;align-items:center;justify-content:space-between;
+    background:#FAF7F2;border:1px solid #EBE2D4;border-radius:var(--radius-sm);
+    padding:12px 18px;margin:14px 0;gap:8px;
+  }
+  .case-flow-node{
+    flex:1;background:#FFFFFF;border:1px solid #E4D8C7;border-radius:6px;
+    padding:8px 10px;text-align:center;box-shadow:0 1px 3px rgba(60,40,10,0.03);
+  }
+  .case-flow-arrow-flex{
+    flex:0 0 auto;color:#A89886;font-weight:700;font-size:14px;padding:0 2px;
+  }
+
+  /* 04 模块：紧凑指标网格，去除多余留白 */
+  .kpi-grid-h{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px;}
+  .kpi-card-h{background:#FAF7F2;border:1px solid #EBE2D4;border-radius:var(--radius-sm);padding:10px 8px;text-align:center;}
+  .kpi-val-h{font-size:21px;font-weight:800;color:var(--ink-primary);font-family:var(--font-mono);}
+  .kpi-desc-h{font-size:11px;color:var(--ink-muted);margin-top:2px;line-height:1.35;}
+
+  .tech-pill{
+    display:inline-block;font-size:11px;color:var(--ink-secondary);
+    background:#EFE8DC;padding:2px 8px;border-radius:4px;margin-right:6px;margin-top:6px;
+    font-family:var(--font-mono);font-weight:600;
+  }
+
+  .cards-dots{display:flex;justify-content:center;gap:8px;margin-top:14px;}
+  .cards-dots .o{width:8px;height:8px;border-radius:50%;background:rgba(100,70,30,0.25);cursor:pointer;}
+  .cards-dots .o.active{background:#3D2A18;transform:scale(1.3);}
+
+  .toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:#FFFFFF;color:var(--ink-primary);padding:10px 20px;border-radius:20px;font-size:12.5px;font-weight:600;
+    box-shadow:var(--shadow-real);opacity:0;pointer-events:none;z-index:9999;transition:.3s;border:var(--card-border);}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  @keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+  @keyframes pulse{0%,100%{box-shadow:0 0 5px #34C759;}50%{box-shadow:0 0 10px #34C759;}}
+  @keyframes fade{from{opacity:0;}to{opacity:1;}}
+</style>
+</head>
+<body>
+
+<div class="desk-surface"></div>
+<div class="desk-sunlight"></div>
+<div class="window-light" id="windowLight"></div>
+<div class="window-light-fade" id="windowLightFade"></div>
+
+<!-- ===================== 1440x810 主工作台 ===================== -->
+<div class="stage" id="stage">
+
+  <!-- 1. 左上便签 (内容整体下移 + 垂直水平双向居中) -->
+  <div class="obj sticky-note-centered" style="left:50px;top:45px;width:244px;height:232px;transform:rotate(-3deg);">
+    <div class="washi-tape" style="top:-10px;left:50%;transform:translateX(-50%) rotate(1deg);width:70px;"></div>
+    <div style="width:100%;margin-top:4px;">
+      <div class="note-h-c">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2l2.4 6.6L21 9l-5.4 4.2L17.4 20 12 16l-5.4 4 1.8-6.8L3 9l6.6-.4z"/></svg>
+        CONTACT · 联系我
+      </div>
+      <div class="note-row-c">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 5L2 7"/></svg>
+        <a class="note-mail-c" onclick="copyEmail()" title="点击复制邮箱">atianx2003@163.com</a>
+      </div>
+      <div class="note-row-c">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        <span>15818530941</span>
+      </div>
+      <div class="note-row-c">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        <span>现居杭州 · 意向杭州</span>
+      </div>
+    </div>
+    <div style="width:100%;display:flex;flex-direction:column;align-items:center;margin-top:2px;">
+      <a class="dl-btn-c" href="public/Resume.pdf" download>下载完整简历 PDF</a>
+      <div class="status-c"><span class="dot"></span> Ready to Ship · 随时到岗</div>
+    </div>
+  </div>
+
+  <!-- 2. 拍立得照片 -->
+  <div class="obj" style="left:235px;top:305px;width:142px;height:172px;transform:rotate(5deg);">
+    <div class="polaroid">
+      <div class="washi-tape" style="top:-9px;left:26px;width:75px;transform:rotate(-4deg);"></div>
+      <div class="pola-img" style="background-image:url('public/avatar.jpg');"></div>
+      <div class="pola-cap">Tianxin · AI PM</div>
+    </div>
+  </div>
+
+  <!-- 3. 手机 -->
+  <div class="obj lift-phone clickable" style="left:45px;top:455px;transform:rotate(-8deg);" onclick="openModal('modal-phone')">
+    <div class="iphone-lg">
+      <div class="iphone-screen-lg">
+        <div class="iphone-notch-lg"></div>
+        <div class="ios-app-pure-lg">
+          <div class="ios-note-line-lg"></div>
+          <div class="ios-note-line-lg"></div>
+          <div class="ios-note-line-lg" style="width:16px;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="tip">实习经历 · 京东 · 腾讯 · 汉阳科技</div>
+  </div>
+
+  <!-- 4. 咖啡杯 -->
+  <div class="obj lift-coffee" style="left:475px;top:55px;width:124px;height:124px;">
+    <div class="coffee">
+      <div class="coffee-rotate-body">
+        <div class="saucer"></div>
+        <div class="cup"></div>
+        <div class="liq"></div>
+        <div class="crema"></div>
+      </div>
+    </div>
+    <div class="tip tip-down">
+      <span class="tip-cap">【Product Sense】</span>
+      PRD 撰写 · 交互设计 · 竞品拆解 · 敏捷迭代
+    </div>
+  </div>
+
+  <!-- 5. 细金框眼镜 -->
+  <div class="obj lift-glasses" style="left:715px;top:90px;width:144px;height:62px;">
+    <svg class="glasses-gold" viewBox="0 0 150 64" fill="none">
+      <circle cx="34" cy="32" r="24" fill="rgba(215,235,250,0.18)" stroke="#C49B58" stroke-width="2.6"/>
+      <circle cx="116" cy="32" r="24" fill="rgba(215,235,250,0.18)" stroke="#C49B58" stroke-width="2.6"/>
+      <path d="M58 32 Q75 22 92 32" stroke="#C49B58" stroke-width="2.6" fill="none"/>
+      <path d="M10 30 L4 26 M140 30 L146 26" stroke="#C49B58" stroke-width="2.6" stroke-linecap="round"/>
+      <ellipse cx="28" cy="24" rx="7" ry="3.5" fill="rgba(255,255,255,0.45)"/>
+      <ellipse cx="110" cy="24" rx="7" ry="3.5" fill="rgba(255,255,255,0.45)"/>
+    </svg>
+    <div class="tip tip-down">
+      <span class="tip-cap">【AI &amp; Data Native】</span>
+      Agent 架构设计 · Prompt Engineering · Python / SQL · CNN / RNN
+    </div>
+  </div>
+
+  <!-- 6. 核心终端 (绝对居中) -->
+  <div class="obj" style="left:445px;top:228px;">
+    <div class="device">
+      <div class="device-screen">
+        <div class="term-bar">
+          <span class="d red"></span><span class="d yel"></span><span class="d grn"></span>
+          <span class="term-title">Tianxin OS — zsh — 80×24</span>
+          <button class="replay" title="重新播放" onclick="runTerminal()">↻</button>
+        </div>
+        <div class="term-body" id="term-body"></div>
+        <div class="term-hint">Tianxin OS v1.0 · kernel: data+product+system</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. 铅笔 -->
+  <div class="obj lift-pencil pencil-box" style="left:825px;top:575px;">
+    <svg class="pencil-svg-rot" viewBox="0 0 236 24" fill="none">
+      <polygon points="0,12 26,2 26,22" fill="#F0DCB0" stroke="#C9A86A" stroke-width="1"/>
+      <polygon points="0,12 10,12 26,2 26,22" fill="#E6C98A"/>
+      <polygon points="0,12 8,9 8,15" fill="#3A3A3E"/>
+      <rect x="26" y="2" width="172" height="20" rx="2" fill="#F5C542"/>
+      <rect x="26" y="2" width="172" height="5" rx="2" fill="#F7D66A"/>
+      <rect x="198" y="2" width="20" height="20" rx="2" fill="#C9CCD1"/>
+      <rect x="218" y="2" width="16" height="20" rx="3" fill="#E88A8A"/>
+    </svg>
+    <div class="tip">
+      <span class="tip-cap">【Soft Skills】</span>
+      跨部门沟通 · 强自驱力 · 中英双语 (IELTS 6.5 / CET-6)
+    </div>
+  </div>
+
+  <!-- 8. 关于我卡片 -->
+  <div class="obj lift-about clickable" style="left:435px;top:615px;transform:rotate(-7deg);" onclick="openModal('modal-about')">
+    <div class="vibe-card-lg">
+      <div class="vibe-text-lg">关于我<small>ABOUT ME</small></div>
+    </div>
+    <div class="tip">自我评价 · 点击展开</div>
+  </div>
+
+  <!-- 9. 右上日记本 -->
+  <div class="obj lift-journal clickable" style="left:1110px;top:60px;transform:rotate(3deg);" onclick="openModal('modal-journal')">
+    <div class="journal-pure">
+      <div class="journal-spine-pure"></div>
+      <div class="journal-title-pure">CAMPUS<br>&amp; VIBE</div>
+      <div class="journal-sub-pure">A LEDGER OF MEMORIES</div>
+    </div>
+    <div class="tip tip-down"><span class="tip-cap">【校园生活】</span>深大舞队队长 · 班长 · 点击翻阅手记</div>
+  </div>
+
+  <!-- 10. 右下档案袋 -->
+  <div class="obj lift-folder clickable" style="left:1055px;top:420px;transform:rotate(-2deg);" onclick="openModal('modal-folder')">
+    <div class="folder-real">
+      <div class="folder-flap-real"></div>
+      <div class="folder-label-card">
+        <div class="folder-label-real">PROJECTS &amp; RESEARCH</div>
+        <div class="folder-sub-real">PROJECT ARCHIVE</div>
+      </div>
+    </div>
+    <div class="tip"><span class="tip-cap">【项目档案】</span>点击展开 · AI 产品经理 Case Study</div>
+  </div>
+
+</div>
+
+<!-- ============================================================
+     MODALS 系统
+============================================================ -->
+
+<!-- 1. 项目技术看板 -->
+<div class="modal" id="modal-folder">
+  <div class="modal-bg" onclick="closeAll()"></div>
+  <div class="modal-card" style="width:min(1160px,94vw);padding:28px 36px;">
+    <button class="x-btn" onclick="closeAll()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    
+    <!-- 顶栏标题 -->
+    <div style="display:flex;align-items:baseline;justify-content:space-between;border-bottom:1px solid #EAE2D2;padding-bottom:12px;margin-bottom:16px;">
+      <div>
+        <div style="font-size:22px;font-weight:800;color:var(--ink-primary);">AI 产品项目复盘 · CASE STUDY</div>
+        <div class="modal-sub" style="margin-bottom:0;font-size:11px;">PROBLEM · SOLUTION · AI ARCHITECTURE · IMPACT</div>
+      </div>
+      <div class="mono" style="font-size:12px;color:var(--ink-muted);">AI-Native Product Portfolio</div>
+    </div>
+
+    <div style="overflow:hidden;border-radius:var(--radius-md);position:relative;">
+      <div style="display:flex;transition:transform .4s cubic-bezier(.6,.05,.2,1);" id="cardsTrack">
+
+        <!-- ================= CASE 01: VisionAgent ================= -->
+        <div style="flex:0 0 100%;box-sizing:border-box;padding:2px;">
+          <div class="case-container">
+            
+            <!-- 项目标题与定位 -->
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;border-bottom:1px dashed #EBE2D4;padding-bottom:12px;">
+              <div>
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <span class="badge mono" style="background:var(--acc-orange);color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;">01</span>
+                  <span style="font-size:11px;font-weight:700;color:var(--acc-orange);letter-spacing:1.5px;" class="mono">AI AGENT PRODUCT</span>
+                </div>
+                <div style="font-size:21px;font-weight:900;color:var(--ink-primary);margin:4px 0 2px;">VisionAgent · 让 AI 图像编辑从“一次生成”走向“自动评估与优化”</div>
+                <div style="font-size:12.5px;color:var(--ink-muted);" class="mono">AI Agent × Vision Foundation Models × Evaluation Loop</div>
+              </div>
+              <div class="mono" style="font-size:11.5px;color:var(--ink-muted);background:#FAF7F2;padding:4px 10px;border-radius:6px;border:1px solid #EBE2D4;">
+                香港城市大学 课程项目
+              </div>
+            </div>
+
+            <!-- 产品流程图：单行 Flex 水平自适应流线 -->
+            <div class="case-flow-flex">
+              <div class="case-flow-node">
+                <div class="mono" style="font-size:10px;color:var(--acc-orange);font-weight:700;">USER INPUT</div>
+                <div style="font-size:12px;font-weight:700;margin-top:2px;">自然语言 + 选区</div>
+              </div>
+              <div class="case-flow-arrow-flex">➔</div>
+              <div class="case-flow-node">
+                <div class="mono" style="font-size:10px;color:var(--acc-blue);font-weight:700;">AGENT PLANNER</div>
+                <div style="font-size:12px;font-weight:700;margin-top:2px;">DINO + SAM 分割</div>
+              </div>
+              <div class="case-flow-arrow-flex">➔</div>
+              <div class="case-flow-node">
+                <div class="mono" style="font-size:10px;color:var(--acc-warm);font-weight:700;">CANDIDATE POOL</div>
+                <div style="font-size:12px;font-weight:700;margin-top:2px;">异构多模型并发</div>
+              </div>
+              <div class="case-flow-arrow-flex">➔</div>
+              <div class="case-flow-node">
+                <div class="mono" style="font-size:10px;color:var(--acc-green);font-weight:700;">OPTIMAL OUTPUT</div>
+                <div style="font-size:12px;font-weight:700;margin-top:2px;">双向评测闭环输出</div>
+              </div>
+            </div>
+
+            <!-- 四象限 Case Study 主干 -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:10px;">
+              
+              <!-- 01 用户问题 -->
+              <div style="background:#FAF7F2;border:1px solid #EBE2D4;border-radius:var(--radius-sm);padding:14px 16px;">
+                <div class="case-section-title mono">01 · USER PROBLEM // 用户痛点</div>
+                <div style="font-size:13px;color:var(--ink-secondary);line-height:1.7;">
+                  传统 AI 图像编辑工具依赖单一模型“一次性直接生成”，生成结果具有<b>高方差与幻觉黑盒</b>特征。用户经常遇到背景伪影或虚构物体，被迫反复修改 Prompt 手工重试，调试成本极高。
+                </div>
+              </div>
+
+              <!-- 02 产品方案 -->
+              <div style="background:#FAF7F2;border:1px solid #EBE2D4;border-radius:var(--radius-sm);padding:14px 16px;">
+                <div class="case-section-title mono">02 · PRODUCT SOLUTION // 产品方案</div>
+                <div style="font-size:13px;color:var(--ink-secondary);line-height:1.7;">
+                  设计 <b>Multi-Candidate 智能体竞争与自我纠错闭环</b>。将生成过程解构为“并发候选生成 ➔ 幻觉风险评估 ➔ 智能打分路由”，由 Agent 自动过滤劣质结果并决策出最优交付物。
+                </div>
+              </div>
+
+              <!-- 03 技术架构 -->
+              <div style="background:#FAF7F2;border:1px solid #EBE2D4;border-radius:var(--radius-sm);padding:14px 16px;">
+                <div class="case-section-title mono">03 · AI ARCHITECTURE // 技术底座</div>
+                <div style="font-size:12.5px;color:var(--ink-secondary);line-height:1.65;">
+                  <div>• <b>感知层：</b>GroundingDINO 开放词表对齐 + SAM 像素分割（9×9膨胀核）</div>
+                  <div>• <b>执行层：</b>SD1.5 多种子并发 + LaMa 频域补全 + OpenCV Telea 兜底</div>
+                  <div>• <b>决策层：</b>双向 IoU 差异化幻觉检测 + 调和均值综合评分 (Harmonic Mean)</div>
+                </div>
+                <div style="margin-top:6px;">
+                  <span class="tech-pill">GroundingDINO</span><span class="tech-pill">SAM</span><span class="tech-pill">Stable Diffusion</span><span class="tech-pill">Eval Pipeline</span>
+                </div>
+              </div>
+
+              <!-- 04 核心业务价值 (紧凑匀称，去除过大间隙) -->
+              <div style="background:#FAF7F2;border:1px solid #EBE2D4;border-radius:var(--radius-sm);padding:14px 16px;">
+                <div class="case-section-title mono">04 · BUSINESS IMPACT // 价值与指标</div>
+                <div class="kpi-grid-h">
+                  <div class="kpi-card-h">
+                    <div class="kpi-val-h">3,500+</div>
+                    <div class="kpi-desc-h">评测基线覆盖</div>
+                  </div>
+                  <div class="kpi-card-h">
+                    <div class="kpi-val-h" style="color:var(--acc-green);">-14.2%</div>
+                    <div class="kpi-desc-h">幻觉错误率直降</div>
+                  </div>
+                  <div class="kpi-card-h">
+                    <div class="kpi-val-h" style="color:var(--acc-orange);">83%</div>
+                    <div class="kpi-desc-h">动态路由算力节省</div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ================= CASE 02: NewsClassifier ================= -->
+        <div style="flex:0 0 100%;box-sizing:border-box;padding:2px;">
+          <div class="case-container">
+            
+            <!-- 项目标题与定位 -->
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;border-bottom:1px dashed #EBE2D4;padding-bottom:12px;">
+              <div>
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <span class="badge mono" style="background:var(--acc-green);color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;">02</span>
+                  <span style="font-size:11px;font-weight:700;color:var(--acc-green);letter-spacing:1.5px;" class="mono">NLP &amp; DATA PIPELINE PRODUCT</span>
+                </div>
+                <div style="font-size:21px;font-weight:900;color:var(--ink-primary);margin:4px 0 2px;">NewsClassifier · 7万级新闻文本智能多分类与自动化处理系统</div>
+                <div style="font-size:12.5px;color:var(--ink-muted);" class="mono">Data Mining × NLP Engineering × Model Benchmark System</div>
+              </div>
+              <div class="mono" style="font-size:11.5px;color:var(--ink-muted);background:#FAF7F2;padding:4px 10px;border-radius:6px;border:1px solid #EBE2D4;">
+                深圳大学 课程项目
+              </div>
+            </div>
+
+            <!-- 产品流程图：单行 Flex 水平自适应流线 -->
+            <div class="case-flow-flex">
+              <div class="case-flow-node">
+                <div class="mono" style="font-size:10px;color:var(--acc-green);font-weight:700;">RAW DATA</div>
+                <div style="font-size:12px;font-weight:700;margin-top:2px;">70,000 条长文本</div>
+              </div>
+              <div class="case-flow-arrow-flex">➔</div>
+              <div class="case-flow-node">
+                <div class="mono" style="font-size:10px;color:var(--acc-orange);font-weight:700;">PREPROCESS</div>
+                <div style="font-size:12px;font-weight:700;margin-top:2px;">Jieba + 停用词</div>
+              </div>
+              <div class="case-flow-arrow-flex">➔</div>
+              <div class="case-flow-node">
+                <div class="mono" style="font-size:10px;color:var(--acc-blue);font-weight:700;">VECTORIZATION</div>
+                <div style="font-size:12px;font-weight:700;margin-top:2px;">10k Tokenizer</div>
+              </div>
+              <div class="case-flow-arrow-flex">➔</div>
+              <div class="case-flow-node">
+                <div class="mono" style="font-size:10px;color:var(--acc-warm);font-weight:700;">CNN+LSTM PIPELINE</div>
+                <div style="font-size:12px;font-weight:700;margin-top:2px;">端到端生产级分类</div>
+              </div>
+            </div>
+
+            <!-- 四象限 Case Study 主干 -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:10px;">
+              
+              <!-- 01 业务问题 -->
+              <div style="background:#FAF7F2;border:1px solid #EBE2D4;border-radius:var(--radius-sm);padding:14px 16px;">
+                <div class="case-section-title mono">01 · USER PROBLEM // 业务痛点</div>
+                <div style="font-size:13px;color:var(--ink-secondary);line-height:1.7;">
+                  海量互联网新闻存在<b>信息冗余大、时序跨度长、特征高度稀疏</b>等痛点。传统统计学分类算法准确度不足且维护成本高，难以应对高吞吐的内容审核与推荐打标需求。
+                </div>
+              </div>
+
+              <!-- 02 产品方案 -->
+              <div style="background:#FAF7F2;border:1px solid #EBE2D4;border-radius:var(--radius-sm);padding:14px 16px;">
+                <div class="case-section-title mono">02 · PRODUCT SOLUTION // 产品方案</div>
+                <div style="font-size:13px;color:var(--ink-secondary);line-height:1.7;">
+                  搭建<b>自动化数据清洗与模型横评 Pipeline</b>。通过工程化对比 MLP、CNN、RNN、LSTM 与 CNN+LSTM 混合模型，选定兼具空间局部特征提取与时序长记忆的最优落地模型。
+                </div>
+              </div>
+
+              <!-- 03 技术架构 -->
+              <div style="background:#FAF7F2;border:1px solid #EBE2D4;border-radius:var(--radius-sm);padding:14px 16px;">
+                <div class="case-section-title mono">03 · AI STACK // 算法与工程底座</div>
+                <div style="font-size:12.5px;color:var(--ink-secondary);line-height:1.65;">
+                  <div>• <b>数据层：</b>哈工大停用词表清洗 + Jieba 动态分词 + 200 定长规整</div>
+                  <div>• <b>特征层：</b>Top 10000 高频词映射向量化与嵌入层 (Embedding) 映射</div>
+                  <div>• <b>模型层：</b>CNN 卷积池化捕捉局部空间模式 + LSTM 门控处理长依赖</div>
+                </div>
+                <div style="margin-top:6px;">
+                  <span class="tech-pill">Python</span><span class="tech-pill">CNN+LSTM</span><span class="tech-pill">Tokenizer</span><span class="tech-pill">EDA Pipeline</span>
+                </div>
+              </div>
+
+              <!-- 04 核心业务价值 -->
+              <div style="background:#FAF7F2;border:1px solid #EBE2D4;border-radius:var(--radius-sm);padding:14px 16px;">
+                <div class="case-section-title mono">04 · BUSINESS IMPACT // 业务指标</div>
+                <div class="kpi-grid-h">
+                  <div class="kpi-card-h">
+                    <div class="kpi-val-h" style="color:var(--acc-green);">95.0%</div>
+                    <div class="kpi-desc-h">准确率与 F1 SOTA</div>
+                  </div>
+                  <div class="kpi-card-h">
+                    <div class="kpi-val-h">70,000</div>
+                    <div class="kpi-desc-h">长文本自动化标注</div>
+                  </div>
+                  <div class="kpi-card-h">
+                    <div class="kpi-val-h" style="color:var(--acc-warm);">7 大类</div>
+                    <div class="kpi-desc-h">主流新闻全覆盖</div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 轮播控制 -->
+    <button class="nav prev" onclick="cardStep(-1)">‹</button>
+    <button class="nav next" onclick="cardStep(1)">›</button>
+    <div class="cards-dots" id="cardsDots"></div>
+  </div>
+</div>
+
+<!-- 2. 实习经历弹窗 -->
+<div class="modal" id="modal-phone">
+  <div class="modal-bg" onclick="closeAll()"></div>
+  <div class="modal-card" style="width:min(1040px,90vw);max-height:88vh;padding:32px 42px;">
+    <button class="x-btn" onclick="closeAll()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    <div style="font-size:22px;font-weight:800;color:var(--ink-primary);margin-bottom:3px;">实习经历 · INTERNSHIP EXPERIENCE</div>
+    <div class="modal-sub" style="font-size:11px;margin-bottom:18px;">PROFESSIONAL TRACK &amp; IMPACT</div>
+    
+    <div class="scroll-body">
+      <div style="background:#FFFFFF;border:var(--card-border);border-left:5px solid var(--acc-orange);border-radius:var(--radius-sm);padding:22px 26px;margin-bottom:16px;">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;">
+          <span class="mono" style="font-size:11.5px;font-weight:700;color:#fff;background:var(--acc-orange);padding:3px 10px;border-radius:4px;">AI AGENT · PRODUCT</span>
+          <span class="mono" style="font-size:13px;color:var(--ink-muted);">2026.04 - 2026.06</span>
+        </div>
+        <div style="font-size:17.5px;font-weight:800;margin:8px 0 8px;">京东科技 · AI 智能体平台组 | 产品实习生</div>
+        <div style="font-size:14px;line-height:1.8;color:var(--ink-secondary);">
+          <div style="margin-bottom:6px;">• <b>提示词资产化：</b>从 0 到 1 主导“提示词自定义模板保存与管理”功能设计，覆盖集中管理、画布一键保存、一键复用覆盖预警三大核心场景，实现提示词资产沉淀与高效复用。</div>
+          <div style="margin-bottom:6px;">• <b>竞品与调研：</b>深度调研 10+ B 端客户，横评对比 Coze / Dify / 文心 AgentBuilder，输出功能矩阵与体验优化路线。</div>
+          <div>• <b>PRD 严密落地：</b>制定 2 个敏捷版本路线图，主导交互原型并细化 999 配额上限、重名校验等复杂边界逻辑。</div>
+        </div>
+      </div>
+
+      <div style="background:#FFFFFF;border:var(--card-border);border-left:5px solid var(--acc-blue);border-radius:var(--radius-sm);padding:22px 26px;margin-bottom:16px;">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;">
+          <span class="mono" style="font-size:11.5px;font-weight:700;color:#fff;background:var(--acc-blue);padding:3px 10px;border-radius:4px;">OPERATIONS &amp; SYSTEM</span>
+          <span class="mono" style="font-size:13px;color:var(--ink-muted);">2024.01 - 2024.03</span>
+        </div>
+        <div style="font-size:17.5px;font-weight:800;margin:8px 0 8px;">腾讯 · IEG 渠道支持中心 | 项目实习生</div>
+        <div style="font-size:14px;line-height:1.8;color:var(--ink-secondary);">
+          <div style="margin-bottom:6px;">• <b>业务协同：</b>协同对接 10+ 项目组与 5 大主流厂商，推进春节游戏合集上线，实现下载与预约突破 <b>30W+</b>。</div>
+          <div>• <b>流程标准化：</b>独立搭建 15+ 页面与埋点配置，沉淀《渠道对接需求清单》，实现活动零延误上线。</div>
+        </div>
+      </div>
+
+      <div style="background:#FFFFFF;border:var(--card-border);border-left:5px solid var(--acc-green);border-radius:var(--radius-sm);padding:22px 26px;">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;">
+          <span class="mono" style="font-size:11.5px;font-weight:700;color:#fff;background:var(--acc-green);padding:3px 10px;border-radius:4px;">PROJECT MANAGEMENT</span>
+          <span class="mono" style="font-size:13px;color:var(--ink-muted);">2024.07 - 2024.08</span>
+        </div>
+        <div style="font-size:17.5px;font-weight:800;margin:8px 0 8px;">深圳汉阳科技 · 项目管理组 | 项目助理实习生</div>
+        <div style="font-size:14px;line-height:1.8;color:var(--ink-secondary);">
+          推进多项目进度监控与日报 100% 对齐，制定新工具流转规范，沟通效率提升 <b>20%</b>，缩短项目周期 <b>15%</b>。
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. 关于我弹窗 -->
+<div class="modal" id="modal-about">
+  <div class="modal-bg" onclick="closeAll()"></div>
+  <div class="modal-card" style="width:min(840px,85vw);padding:36px 44px;">
+    <button class="x-btn" onclick="closeAll()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    <div style="font-size:22px;font-weight:800;color:var(--ink-primary);margin-bottom:3px;">关于我 · ABOUT ME</div>
+    <div class="modal-sub" style="font-size:11px;margin-bottom:20px;">PHILOSOPHY &amp; PROFILE</div>
+
+    <div style="background:#FFFFFF;border:var(--card-border);border-left:5px solid var(--acc-orange);border-radius:var(--radius-sm);padding:24px 28px;">
+      <div style="font-size:15.5px;line-height:1.95;text-indent:2em;color:var(--ink-secondary);">
+        香港城市大学数据科学硕士，具备 AI 智能体产品设计与 B 端产品实习经验。熟悉 Python / SQL 数据处理与可视化，对 Data Agent、大模型落地应用有深入理解。拥有腾讯、京东等头部互联网公司实习经历，擅长跨部门协同与需求严密落地。
+      </div>
+      <div style="margin-top:20px;padding:18px 22px;background:#FAF7F2;border-radius:var(--radius-sm);font-size:14.5px;line-height:1.75;color:var(--acc-orange);font-style:italic;text-align:center;font-weight:600;">
+        “在模型高方差的时代，用数据逻辑解构底层，用系统架构守护下限，用产品直觉创造体验。”
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 4. 校园生活弹窗 -->
+<div class="modal" id="modal-journal">
+  <div class="modal-bg" onclick="closeAll()"></div>
+  <div class="modal-card" style="width:min(900px,94vw);padding:0;background:transparent;box-shadow:none;position:relative;">
+    <button class="x-btn" onclick="closeAll()" style="top:14px;right:14px;z-index:60;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    <div style="display:flex;width:100%;min-height:420px;border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-deep);position:relative;border:var(--card-border);">
+      <div style="width:50%;background:#F4EBD8;padding:24px;box-sizing:border-box;">
+        <div id="bookImg" style="width:100%;height:300px;border-radius:6px;background-size:cover;background-position:center;"></div>
+        <div id="bookCap" style="font-size:12px;color:#8A6A32;text-align:center;margin-top:8px;font-style:italic;"></div>
+      </div>
+      <div style="width:50%;background:#FEFCF7;padding:32px 48px 32px 34px;box-sizing:border-box;">
+        <span id="bookTag" class="mono" style="display:inline-block;font-size:10.5px;letter-spacing:1.5px;color:#fff;background:var(--acc-orange);padding:3px 10px;border-radius:4px;margin-bottom:12px;font-weight:700;"></span>
+        <div id="bookTitle" style="font-size:18px;font-weight:800;color:var(--ink-primary);margin-bottom:6px;"></div>
+        <div id="bookDate" class="mono" style="font-size:12.5px;color:var(--ink-muted);margin-bottom:14px;font-weight:600;"></div>
+        <div id="bookBody" style="font-size:14px;line-height:1.85;color:var(--ink-secondary);text-indent:2em;"></div>
+      </div>
+    </div>
+    <button class="nav prev" onclick="bookStep(-1)">‹</button>
+    <button class="nav next" onclick="bookStep(1)">›</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ====== 自适应缩放 ====== */
+function fitStage(){
+  const sw=1440, sh=810;
+  const s=Math.min(window.innerWidth/sw, window.innerHeight/sh);
+  document.getElementById('stage').style.transform='scale('+s+')';
+}
+window.addEventListener('resize', fitStage);
+window.addEventListener('load', fitStage);
+fitStage();
+
+/* ====== 终端打字效果 ====== */
+const lines=[
+  {cls:'cmd', text:'➜ ~ $ whoami', speed:42},
+  {cls:'out', text:'› 谢天昕 (Tianxin Xie) | AI 产品经理 & 数据科学硕士', speed:22},
+  {cls:'cmd', text:'➜ ~ $ cat background.md', speed:42},
+  {cls:'out', text:'› 香港城市大学 数据科学硕 (QS 52) · 深圳大学 信管本 · 前京东科技 AI Agent 产品实习', speed:22},
+  {cls:'cmd', text:'➜ ~ $ echo $PHILOSOPHY', speed:42},
+  {cls:'out', text:'› "在模型高方差的时代，用数据逻辑解构底层，用系统架构守护下限，用产品直觉创造体验。"', speed:26}
+];
+let typing=false;
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+async function runTerminal(){
+  if(typing) return;
+  typing=true;
+  const body=document.getElementById('term-body');
+  body.innerHTML='';
+  const cursor=document.createElement('span'); cursor.className='cursor';
+  for(const ln of lines){
+    const div=document.createElement('div'); div.className=ln.cls;
+    body.appendChild(div);
+    div.appendChild(cursor);
+    for(let i=0;i<ln.text.length;i++){
+      div.insertBefore(document.createTextNode(ln.text[i]), cursor);
+      await sleep(ln.speed);
+    }
+    await sleep(150);
+  }
+  typing=false;
+}
+window.addEventListener('load', ()=>setTimeout(runTerminal, 500));
+
+/* ====== 弹窗控制 ====== */
+function openModal(id){
+  closeAll();
+  const m=document.getElementById(id);
+  if(!m) return;
+  m.classList.add('open');
+  if(id==='modal-folder') renderCards();
+  if(id==='modal-journal') renderBook();
+}
+function closeAll(){
+  document.querySelectorAll('.modal.open').forEach(m=>m.classList.remove('open'));
+}
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeAll(); });
+
+/* ====== 复制邮箱与 Toast ====== */
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),1800);
+}
+function copyEmail(){
+  const email='atianx2003@163.com';
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(email).then(()=>showToast('邮箱已复制 · '+email));
+  }
+}
+
+/* ====== 项目卡片轮播 ====== */
+const CARD_COUNT=2;
+let cardIdx=0;
+function renderCards(){
+  cardIdx=0; goCard(0);
+  const dots=document.getElementById('cardsDots');
+  dots.innerHTML='';
+  for(let i=0;i<CARD_COUNT;i++){
+    const o=document.createElement('span'); o.className='o'+(i===0?' active':'');
+    o.onclick=(function(n){return function(){goCard(n);};})(i);
+    dots.appendChild(o);
+  }
+}
+function cardStep(d){ goCard((cardIdx+d+CARD_COUNT)%CARD_COUNT); }
+function goCard(n){
+  cardIdx=n;
+  document.getElementById('cardsTrack').style.transform='translateX('+(-n*100)+'%)';
+  document.querySelectorAll('#cardsDots .o').forEach((o,i)=>o.classList.toggle('active',i===n));
+}
+
+/* ====== 校园翻页手账 ====== */
+const bookPages=[
+  {
+    img:'public/dance.jpg',
+    cap:'M.E 舞队 · 舞台演出',
+    tag:'校园 · 舞队队长',
+    title:'深圳大学管理学院 M.E 舞队队长',
+    date:'2022.07 - 2023.07',
+    body:'负责舞队招新宣传、队员体能训练、舞目编排与舞台演出剪辑。把对节奏的掌控力转化为敏捷推进力，用热爱凝聚 30+ 队员从 0 完成高难度齐舞。'
+  },
+  {
+    img:'public/campus.jpg',
+    cap:'深大校园 · 班级 & 学生会',
+    tag:'校园 · 班级 / 学生会',
+    title:'信息管理与信息系统 01 班 班长 & 院行政外联部干事',
+    date:'2021.09 - 2025.06',
+    body:'负责四年班级事务闭环管理与团建组织，强化跨角色同理心与上下对齐能力；参与院级活动策划与公众号排版制作，沉淀团队协作底座。'
+  }
+];
+let bookIdx=0;
+function renderBook(){ bookIdx=0; goBook(0); }
+function bookStep(d){ goBook((bookIdx+d+bookPages.length)%bookPages.length); }
+function goBook(n){
+  bookIdx=n;
+  const p=bookPages[n];
+  const img=document.getElementById('bookImg');
+  img.style.backgroundImage='url("'+p.img+'")';
+  document.getElementById('bookCap').textContent=p.cap;
+  document.getElementById('bookTag').textContent=p.tag;
+  document.getElementById('bookTitle').textContent=p.title;
+  document.getElementById('bookDate').textContent=p.date;
+  document.getElementById('bookBody').textContent=p.body;
+}
+
+/* ====== 窗格阳光鼠标视差 ====== */
+(function(){
+  var light=document.getElementById('windowLight');
+  var fade=document.getElementById('windowLightFade');
+  if(!light) return;
+  var tx=0,ty=0,cx=0,cy=0;
+  document.addEventListener('mousemove',function(e){
+    var hw=window.innerWidth/2, hh=window.innerHeight/2;
+    tx=((e.clientX-hw)/hw)*18;
+    ty=((e.clientY-hh)/hh)*14;
+  });
+  function tick(){
+    cx+=(tx-cx)*0.06;
+    cy+=(ty-cy)*0.06;
+    var xs=cx.toFixed(2)+'px', ys=cy.toFixed(2)+'px';
+    light.style.setProperty('--px',xs);
+    light.style.setProperty('--py',ys);
+    if(fade){
+      fade.style.setProperty('--px',xs);
+      fade.style.setProperty('--py',ys);
+    }
+    requestAnimationFrame(tick);
+  }
+  tick();
+})();
+</script>
+</body>
+</html>
