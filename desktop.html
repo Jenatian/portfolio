@@ -1011,7 +1011,16 @@ function showToast(msg){
 function copyEmail(){
   const email='atianx2003@163.com';
   if(navigator.clipboard&&navigator.clipboard.writeText){
-    navigator.clipboard.writeText(email).then(()=>showToast('邮箱已复制 · '+email));
+    navigator.clipboard.writeText(email).then(()=>showToast('邮箱已复制 · '+email)).catch(()=>fallbackCopy(email));
+  }else{
+    fallbackCopy(email);
+  }
+  function fallbackCopy(text){
+    var ta=document.createElement('textarea');
+    ta.value=text; ta.style.position='fixed'; ta.style.left='-9999px';
+    document.body.appendChild(ta); ta.select();
+    try{ document.execCommand('copy'); showToast('邮箱已复制 · '+text); }catch(e){}
+    document.body.removeChild(ta);
   }
 }
 
@@ -1055,6 +1064,8 @@ const bookPages=[
   }
 ];
 let bookIdx=0;
+// Preload book images
+bookPages.forEach(function(p){ var i=new Image(); i.src=p.img; });
 function renderBook(){ bookIdx=0; goBook(0); }
 function bookStep(d){ goBook((bookIdx+d+bookPages.length)%bookPages.length); }
 function goBook(n){

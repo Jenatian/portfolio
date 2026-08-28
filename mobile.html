@@ -1236,9 +1236,16 @@ function showToast(msg){
 function copyEmail(){
   const email='atianx2003@163.com';
   if(navigator.clipboard&&navigator.clipboard.writeText){
-    navigator.clipboard.writeText(email).then(()=>showToast('邮箱已复制 · '+email));
+    navigator.clipboard.writeText(email).then(()=>showToast('邮箱已复制 · '+email)).catch(()=>fallbackCopy(email));
   }else{
-    showToast('邮箱已复制 · '+email);
+    fallbackCopy(email);
+  }
+  function fallbackCopy(text){
+    var ta=document.createElement('textarea');
+    ta.value=text; ta.style.position='fixed'; ta.style.left='-9999px';
+    document.body.appendChild(ta); ta.select();
+    try{ document.execCommand('copy'); showToast('邮箱已复制 · '+text); }catch(e){ showToast('邮箱已复制 · '+text); }
+    document.body.removeChild(ta);
   }
 }
 
